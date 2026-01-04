@@ -1,5 +1,5 @@
 using System;
-using BackupSystem.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 namespace BackupSystem;
 
 
@@ -13,9 +13,9 @@ public static class CommandParser
 
         var matches = regex.Matches(command);
 
-        foreach(var match in matches)
+        foreach(Match match in matches)
         {
-            args.Add(match.Groups["arg"].Value)
+            args.Add(match.Groups["arg"].Value);
         }
 
         return args;
