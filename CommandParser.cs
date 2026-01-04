@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+
 namespace BackupSystem;
 
 
@@ -17,7 +18,6 @@ public static class CommandParser
         {
             args.Add(match.Groups["arg"].Value);
         }
-
         return args;
     }
 }
