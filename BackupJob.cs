@@ -23,9 +23,30 @@ public class BackupJob
             string fileName = Path.GetFileName(file);
             string destFile = Path.Combine(targetDir, fileName);
 
+            var fileInfo = new FileInfo(file);
+
             try
             {
-                File.Copy(file, destFile, true);
+                if (fileInfo.LinkTarget != null)
+                {
+                    string target = fileInfo.LinkTarget;
+
+                    if (Path.IsPathFullyQualified(target) && target.StartsWith(SourcePath))
+                    {
+                        target = target.Replace(SourcePath, TargetPath);
+                    }
+
+                    if (File.Exists(destFile))
+                    {
+                        File.Delete(destFile);
+                    }
+
+                    File.CreateSymbolicLink(destFile, target);
+                }
+                else
+                {
+                    File.Copy(file, destFile, true);
+                }
             }
             catch(IOException e) {
                 Console.Error.WriteLine($"Could not copy file {fileName} to {destFile}. Error: {e.ToString()}");
