@@ -44,6 +44,9 @@ public class Program
                         PrintUsage();
                         break;
 
+                    case "add":
+
+
                     default:
                         Console.WriteLine($"Unknown command: {command}");
                         PrintUsage();

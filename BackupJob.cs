@@ -53,7 +53,7 @@ public class BackupJob
                 }
             }
             catch(IOException e) {
-                Console.Error.WriteLine($"Could not copy file {fileName} to {destFile}. Error: {e.ToString()}");
+                Console.Error.WriteLine($"Could not copy file {fileName} to {destFile}. Error: {e.Message}");
 
             }
         }
