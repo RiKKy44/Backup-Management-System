@@ -10,36 +10,40 @@ public class BackupManager
     {
         if (!Directory.Exists(source)) {
             Console.WriteLine($"Directory not found: {source}");
+            return;
         }
 
-        try
+        var job = new BackupJob(source, target);
+
+        _activeJobs.Add(job);
+
+        Task backupTask = Task.Run(() =>
         {
-            var job = new BackupJob(source, target);
-
-
-            _activeJobs.Add(job);
-
-            Task backup = Task.Run(() =>
+               
+                job.Start();
+             
+        });
+        backupTask.ContinueWith(t =>
+        {
+            if (t.IsFaulted)
             {
-                try
-                {
-                    job.Start();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Backup job failed ({source} --> {target}). Error: {e.Message}");
-                }
-            });
+                var exception = t.Exception?.InnerException;
+                Console.WriteLine($"Backup job failed ({source} --> {target})");
+                Console.WriteLine($"Reason: {exception?.Message}");
 
-            Console.WriteLine($"Backup job started in background");
-        }
-        catch(Exception e)
-        {
-            Console.WriteLine($"Failed to initialize job. Error: {e.Message}");
-        }
+                _activeJobs.Remove(job);
+            }
+            else if(t.IsCompletedSuccessfully) {
+                Console.WriteLine($"Initial copy finished: {source} --> {target}. Monitoring is active");
+            }
+        });
+
+
+
+
+        Console.WriteLine($"Backup job started in background");
     }
-
-   
-
 }
+
+
 
