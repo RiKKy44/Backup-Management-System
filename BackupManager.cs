@@ -10,6 +10,7 @@ public class BackupManager
 
     // Object used for thread synchronization
     private readonly object _lock = new object();
+
     public void AddBackupJob(string source, string target)
     {
         
@@ -47,10 +48,6 @@ public class BackupManager
                 Console.WriteLine($"Initial copy finished: {source} --> {target}. Monitoring is active");
             }
         });
-
-
-
-
         Console.WriteLine($"Backup job started in background");
     }
 }

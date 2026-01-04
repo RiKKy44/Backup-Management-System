@@ -10,10 +10,11 @@ public class BackupJob
 
     public BackupJob(string sourcePath, string targetPath)
     {
-        SourcePath = Path.GetFullPath(sourcePath);
-        TargetPath = Path.GetFullPath(targetPath);
+        SourcePath = Path.GetFullPath(sourcePath).Trim();
+        TargetPath = Path.GetFullPath(targetPath).Trim();
     }
 
+    private FileSystemWatcher _watcher;
     private void CopyDirectory(string sourceDir, string targetDir)
     {
         Directory.CreateDirectory(targetDir);
@@ -67,6 +68,10 @@ public class BackupJob
     }
     public void Start()
     {
+        if (TargetPath.StartsWith(SourcePath, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Target directory cannot be inside source directory");
+        }
         if (!Directory.Exists(SourcePath))
         {
             throw new DirectoryNotFoundException($"Source does not exist: {SourcePath}");
@@ -88,5 +93,25 @@ public class BackupJob
         CopyDirectory(SourcePath, TargetPath);
 
         Console.WriteLine("Copy complete");
+
+        _watcher = new FileSystemWatcher(SourcePath);
+
+        _watcher.EnableRaisingEvents = true;
+
+        _watcher.NotifyFilter = NotifyFilters.LastWrite
+            | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.CreationTime;
+
+        //_watcher.Created += OnCreated;
+
+        //_watcher.Deleted += OnDeleted;
+
+        //_watcher.Renamed += OnRenamed;
+
+        //_wacther.Changed += OnChanged;
+
+        _watcher.EnableRaisingEvents = true;
+
+        Console.WriteLine($"Monitoring active for: {SourcePath}");
+
     }
 }

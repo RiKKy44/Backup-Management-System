@@ -7,6 +7,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        BackupManager manager = new BackupManager();
         Console.WriteLine("==== Backup Manager ====");
         PrintUsage();
         while (true)
@@ -33,6 +34,7 @@ public class Program
 
             if(arguments.Count > 0)
             {
+                int count = arguments.Count;
                 string command = arguments[0].ToLower();
 
                 switch (command)
@@ -45,7 +47,16 @@ public class Program
                         break;
 
                     case "add":
-
+                        if(count < 3)
+                        {
+                            PrintUsage();
+                            continue;
+                        }
+                        for(int i=2; i < arguments.Count; i++)
+                        {
+                            manager.AddBackupJob(args[1], args[i]);
+                        }
+                        break;
 
                     default:
                         Console.WriteLine($"Unknown command: {command}");
