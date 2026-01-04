@@ -45,6 +45,10 @@ public class BackupJob
                 }
                 else
                 {
+                    if (File.Exists(destFile))
+                    {
+                        File.Delete(destFile);
+                    }
                     File.Copy(file, destFile, true);
                 }
             }
