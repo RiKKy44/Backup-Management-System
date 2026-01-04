@@ -42,6 +42,26 @@ public class BackupJob
     }
     public void Start()
     {
+        if (!Directory.Exists(SourcePath))
+        {
+            throw new DirectoryNotFoundException($"Source does not exist: {SourcePath}");
+        }
+        if (Directory.Exists(TargetPath))
+        {
+            if (Directory.GetFileSystemEntries(TargetPath).Length > 0) {
+                throw new IOException($"Target exists but is not empty: {TargetPath}");
+            }
+            
+        }
+        else
+        {
+            Directory.CreateDirectory(TargetPath);
+        }
 
+        Console.WriteLine($"Copying has started: {SourcePath} --> {TargetPath}");
+
+        CopyDirectory(SourcePath, TargetPath);
+
+        Console.WriteLine("Copy complete");
     }
 }
