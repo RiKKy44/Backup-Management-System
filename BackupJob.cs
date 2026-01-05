@@ -158,9 +158,13 @@ public class BackupJob
             if (attribute.HasFlag(FileAttributes.Directory)){
                 Directory.Move(oldPath, newPath);
             }
-            else
+            else if(File.Exists(oldPath))
             {
                 File.Move(oldPath, newPath);
+            }
+            else
+            {
+                CopyFile(fileEvent.FullPath, newPath); 
             }
         }
         catch(IOException exception)
