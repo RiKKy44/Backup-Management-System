@@ -62,8 +62,6 @@ public class BackupManager
             if (t.IsFaulted)
             {
                 var exception = t.Exception?.InnerException;
-                // Cleaning up console row, to get rid of ">"
-
 
                 Logger.Write($"Backup job failed ({source} --> {target})\nReason: {exception?.Message}");
                 lock (_lock)
@@ -77,7 +75,32 @@ public class BackupManager
                 
             }
         });
-        Logger.Write($"Backup job started in background");
+        Logger.Write($"Backup job started in background: {source} --> {target}");
+    }
+    public void RemoveBackupJob(string source, string target)
+    {
+        string srcPath = Path.GetFullPath(source).Trim();
+        string dstPath = Path.GetFullPath(target).Trim();
+
+
+        lock (_lock)
+        {
+            var jobToRemove = _activeJobs.FirstOrDefault(j =>
+            j.SourcePath == srcPath && j.TargetPath == dstPath);
+
+            if(jobToRemove != null)
+            {
+                jobToRemove.Stop();
+
+                _activeJobs.Remove(jobToRemove);
+
+                Logger.Write($"Backup stopped: {source} --> {target}");
+            }
+            else
+            {
+                Logger.Write("Job not found");
+            }
+        }
     }
 }
 

@@ -53,19 +53,33 @@ public class Program
                         }
                         for(int i=2; i < arguments.Count; i++)
                         {
-                            manager.AddBackupJob(arguments[1], arguments[i]);
+                            string sourcePath = arguments[1];
+                            manager.AddBackupJob(sourcePath, arguments[i]);
                         }
                         break;
+
                     case "list":
                         var list = manager.GetBackupInfo();
                         if (list.Count == 0)
                         {
                             Logger.Write($"There are no current backups");
                         }
-                        foreach(var item in list)
+                        else
                         {
-                            Logger.Write($"[{item.Id}] {item.Source} --> {item.Target}");
+                            foreach (var item in list)
+                            {
+                                Logger.Write($"[{item.Id}] {item.Source} --> {item.Target}");
+                            }
                         }
+                      
+                        break;
+                    case "end":
+                        if (count<3)
+                        {
+                            Logger.Write("Usage: end <source> <target>");
+                            continue;
+                        }
+                        manager.RemoveBackupJob(arguments[1], arguments[2]);
                         break;
                     default:
                         Logger.Write($"Unknown command: {command}\n{Usage()}");

@@ -64,13 +64,7 @@ public class BackupJob
         {
             Directory.CreateDirectory(TargetPath);
         }
-
-        Logger.Write($"Copying has started: {SourcePath} --> {TargetPath}");
-
         CopyDirectory(SourcePath, TargetPath);
-
-        Logger.Write("Copy complete");
-
         _watcher = new FileSystemWatcher(SourcePath);
 
         _watcher.EnableRaisingEvents = true;
@@ -252,4 +246,20 @@ public class BackupJob
             File.Copy(sourceFile, destFile, true);
         }
     }
+
+
+    public void Stop()
+    {
+        if(_watcher != null)
+        {
+            _watcher.EnableRaisingEvents = false;
+
+            _watcher.Dispose();
+
+            Logger.Write($"Stopped monitoring: {SourcePath} --> {TargetPath}");
+        }
+    }
+
+    
+
 }
