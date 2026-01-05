@@ -8,7 +8,7 @@ public class Program
     public static void Main(string[] args)
     {
         BackupManager manager = new BackupManager();
-        Console.WriteLine("==== Backup Manager ====");
+        Console.WriteLine("\t==== Backup Manager ====");
         Logger.Write(Usage());
         while (true)
         {
@@ -79,13 +79,13 @@ public class Program
     public static string Usage()
     {
         string message = @"
-        Usage:
-          add <source> <target> ...   Start backup monitoring
-          end <source> <target> ...   Stop specific backup
-          restore <source> <target>   Restore files from backup
-          list                        Show active backups
-          exit                        Quit the application
-        ";
+Usage:
+    add <source> <target> ...   Start backup monitoring
+    end <source> <target> ...   Stop specific backup
+    restore <source> <target>   Restore files from backup
+    list                        Show active backups
+    exit                        Quit the application
+";
         return message;
     }
 }
