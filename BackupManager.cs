@@ -11,6 +11,32 @@ public class BackupManager
     // Object used for thread synchronization
     private readonly object _lock = new object();
 
+
+    public struct BackupInfo
+    {
+        public int Id;
+        public string Source;
+        public string Target;
+    }
+
+    public List<BackupInfo> GetBackupInfo()
+    {
+        lock (_lock)
+        {
+            List<BackupInfo> result = new List<BackupInfo>();
+
+            for (int i = 0; i < _activeJobs.Count; i++)
+            {
+                result.Add(new BackupInfo
+                {
+                    Id = i + 1,
+                    Source = _activeJobs[i].SourcePath,
+                    Target = _activeJobs[i].TargetPath,
+                });
+            }
+            return result;
+        }
+    }
     public void AddBackupJob(string source, string target)
     {
         
