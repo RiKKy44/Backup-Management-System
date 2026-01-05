@@ -119,12 +119,28 @@ public class BackupJob
         }
         catch(IOException exception)
         {
-            Console.WriteLine($" Error: {exception}");
+            Console.WriteLine($" OnCreated error: {exception}");
         }
     }
-    private void OnDeleted(object sender, FileSystemEventArgs e)
+    private void OnDeleted(object sender, FileSystemEventArgs fileEvent)
     {
-        throw new NotImplementedException();
+        string destPath = Path.Combine(TargetPath, fileEvent.Name);
+
+        try
+        {
+            FileAttributes attribute = File.GetAttributes(destPath);
+            if (attribute.HasFlag(FileAttributes.Directory))
+            {
+                Directory.Delete(destPath, true);
+            }
+            else
+            {
+                File.Delete(destPath);
+            }
+        }
+        catch (IOException exception) {
+            Console.WriteLine($"OnDeleted error: {exception}");
+        }
     }
     private void OnRenamed(object sender, RenamedEventArgs e)
     {
