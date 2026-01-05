@@ -9,10 +9,9 @@ public class Program
     {
         BackupManager manager = new BackupManager();
         Console.WriteLine("==== Backup Manager ====");
-        PrintUsage();
+        Logger.Write(Usage());
         while (true)
         {
-            Console.Write(">");
             var arguments = new List<string>();
 
             try
@@ -28,7 +27,7 @@ public class Program
 
             }
             catch (Exception e) { 
-                Console.WriteLine($"Error: {e.ToString()}");
+                Logger.Write($"Error: {e.ToString()}");
                 continue;
             }
 
@@ -43,13 +42,13 @@ public class Program
                         return;
 
                     case "help":
-                        PrintUsage();
+                        Logger.Write(Usage());
                         break;
 
                     case "add":
                         if(count < 3)
                         {
-                            PrintUsage();
+                            Logger.Write(Usage());
                             continue;
                         }
                         for(int i=2; i < arguments.Count; i++)
@@ -61,16 +60,15 @@ public class Program
                         var list = manager.GetBackupInfo();
                         if (list.Count == 0)
                         {
-                            Console.WriteLine($"There are no current backups");
+                            Logger.Write($"There are no current backups");
                         }
                         foreach(var item in list)
                         {
-                            Console.WriteLine($"[{item.Id}] {item.Source} --> {item.Target}");
+                            Logger.Write($"[{item.Id}] {item.Source} --> {item.Target}");
                         }
                         break;
                     default:
-                        Console.WriteLine($"Unknown command: {command}");
-                        PrintUsage();
+                        Logger.Write($"Unknown command: {command}\n{Usage()}");
                         break;
                 }
             }
@@ -78,15 +76,16 @@ public class Program
         }
     }
 
-    public static void PrintUsage()
+    public static string Usage()
     {
-        Console.WriteLine();
-        Console.WriteLine("Usage:");
-        Console.WriteLine("  add <source> <target> <target2> ...   Start backup monitoring");
-        Console.WriteLine("  end <source> <target> <target2> ...   Stop specific backup");
-        Console.WriteLine("  restore <source> <target>             Restore files from backup");
-        Console.WriteLine("  list                                  Show active backups");
-        Console.WriteLine("  exit                                  Quit the application");
-        Console.WriteLine();
+        string message = @"
+        Usage:
+          add <source> <target> ...   Start backup monitoring
+          end <source> <target> ...   Stop specific backup
+          restore <source> <target>   Restore files from backup
+          list                        Show active backups
+          exit                        Quit the application
+        ";
+        return message;
     }
 }

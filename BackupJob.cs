@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using System.Threading;
 namespace BackupSystem;
 
@@ -31,7 +32,7 @@ public class BackupJob
                 CopyFile(file, destFile);
             }
             catch(IOException e) {
-                Console.Error.WriteLine($"Could not copy file {fileName} to {destFile}. Error: {e.Message}");
+                Logger.Write($"Could not copy file {fileName} to {destFile}. Error: {e.Message}");
             }
         }
         foreach(string directory in Directory.EnumerateDirectories(sourceDir))
@@ -64,11 +65,11 @@ public class BackupJob
             Directory.CreateDirectory(TargetPath);
         }
 
-        Console.WriteLine($"Copying has started: {SourcePath} --> {TargetPath}");
+        Logger.Write($"Copying has started: {SourcePath} --> {TargetPath}");
 
         CopyDirectory(SourcePath, TargetPath);
 
-        Console.WriteLine("Copy complete");
+        Logger.Write("Copy complete");
 
         _watcher = new FileSystemWatcher(SourcePath);
 
@@ -91,40 +92,54 @@ public class BackupJob
 
         _watcher.EnableRaisingEvents = true;
 
-        Console.WriteLine($"Monitoring active for: {SourcePath}");
+        Logger.Write($"Monitoring active for: {SourcePath}");
 
     }
 
 
     private void OnCreated(object sender, FileSystemEventArgs fileEvent)
     {
-        Console.WriteLine($"Creation reported: {fileEvent.Name}");
+        Logger.Write($"Creation reported: {fileEvent.Name}");
 
         string destPath = Path.Combine(TargetPath, fileEvent.Name);
 
-        try
+        int attempts = 0;
+        bool success = false;
+
+        while(attempts < 10 && !success)
         {
-
-            if(!File.Exists(destPath) && !Directory.Exists(fileEvent.FullPath))
+            try
             {
-                return;
+                if (!File.Exists(fileEvent.FullPath) && !Directory.Exists(fileEvent.FullPath))
+                {
+                    return;
+                }
+                FileAttributes attributes = File.GetAttributes(fileEvent.FullPath);
+                if (attributes.HasFlag(FileAttributes.Directory))
+                {
+                    if (!Directory.Exists(destPath))
+                    {
+                        Directory.CreateDirectory(destPath);
+                    }
+                    success = true;
+                }
+                else
+                {
+                    CopyFile(fileEvent.FullPath, destPath);
+                    success = true;
+                }
             }
-
-            FileAttributes atribute = File.GetAttributes(fileEvent.FullPath);
-
-            if (atribute.HasFlag(FileAttributes.Directory))
+            catch (IOException)
             {
-                Directory.CreateDirectory(destPath);
+                attempts++;
+                Thread.Sleep(100);
             }
-            else
-            {
-                CopyFile(fileEvent.FullPath, destPath);
+            catch (Exception ex) {
+                Logger.Write($"OnCreated failed: {ex.Message}");
+                break;
             }
         }
-        catch(IOException exception)
-        {
-            Console.WriteLine($" OnCreated error: {exception.Message}");
-        }
+          
     }
     private void OnDeleted(object sender, FileSystemEventArgs fileEvent)
     {
@@ -143,7 +158,7 @@ public class BackupJob
             }
         }
         catch (IOException exception) {
-            Console.WriteLine($"OnDeleted error: {exception.Message}");
+            Logger.Write($"OnDeleted error: {exception.Message}");
         }
     }
     private void OnRenamed(object sender, RenamedEventArgs fileEvent)
@@ -169,7 +184,7 @@ public class BackupJob
         }
         catch(IOException exception)
         {
-            Console.WriteLine($"OnRenamed error: {exception.Message}");
+            Logger.Write($"OnRenamed error: {exception.Message}");
         }
     }
     private void OnChanged(object sender, FileSystemEventArgs fileEvent)
@@ -195,19 +210,19 @@ public class BackupJob
             catch (IOException exception)
             {
                 attempts++;
-                Console.WriteLine($"File is busy, attempt nr {attempts}. Error: {exception.Message}");
+                Logger.Write($"File is busy, attempt nr {attempts}. Error: {exception.Message}");
 
                 Thread.Sleep(100);
             }
-            catch (Exception exception2) { 
-                Console.WriteLine($"OnChanged error: {exception2.Message}");
+            catch (Exception exception2) {
+                Logger.Write($"OnChanged error: {exception2.Message}");
                 break;
             }
         }
 
         if (!success)
         {
-            Console.WriteLine($"Unable to update file after {attempts} attemps");
+            Logger.Write($"Unable to update file after {attempts} attemps");
         }
 
 

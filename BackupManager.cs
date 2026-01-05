@@ -41,7 +41,7 @@ public class BackupManager
     {
         
         if (!Directory.Exists(source)) {
-            Console.WriteLine($"Directory not found: {source}");
+            Logger.Write($"Directory not found: {source}");
             return;
         }
 
@@ -62,19 +62,22 @@ public class BackupManager
             if (t.IsFaulted)
             {
                 var exception = t.Exception?.InnerException;
-                Console.WriteLine($"Backup job failed ({source} --> {target})");
-                Console.WriteLine($"Reason: {exception?.Message}");
+                // Cleaning up console row, to get rid of ">"
 
+
+                Logger.Write($"Backup job failed ({source} --> {target})\nReason: {exception?.Message}");
                 lock (_lock)
                 {
                     _activeJobs.Remove(job);
                 }
             }
             else if(t.IsCompletedSuccessfully) {
-                Console.WriteLine($"Initial copy finished: {source} --> {target}. Monitoring is active");
+
+                Logger.Write($"Initial copy finished: {source} --> {target}. Monitoring is active");
+                
             }
         });
-        Console.WriteLine($"Backup job started in background");
+        Logger.Write($"Backup job started in background");
     }
 }
 
