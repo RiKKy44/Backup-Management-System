@@ -1,5 +1,5 @@
 using System;
-
+using System.Threading;
 namespace BackupSystem;
 
 
@@ -166,7 +166,45 @@ public class BackupJob
     }
     private void OnChanged(object sender, FileSystemEventArgs fileEvent)
     {
-        throw new NotImplementedException();
+        string destPath = Path.Combine(TargetPath, fileEvent.Name);
+
+        FileAttributes attributes = File.GetAttributes(destPath);
+
+        if (attributes.HasFlag(FileAttributes.Directory)) {
+            return;
+        }
+
+        int attempts = 0;
+
+        bool success = false;
+
+        while(attempts < 6 && !success)
+        {
+            try
+            {
+                CopyFile(fileEvent.FullPath, destPath);
+                success = true;
+                attempts++;
+            }
+            catch (IOException exception)
+            {
+                attempts++;
+                Console.WriteLine($"File is busy, attempt nr {attempts}. Error: {exception.Message}");
+
+                Thread.Sleep(100);
+            }
+            catch (Exception exception2) { 
+                Console.WriteLine($"OnChanged error: {exception2.Message}");
+                break;
+            }
+        }
+
+        if (!success)
+        {
+            Console.WriteLine($"Unable to update file after {attempts} attemps");
+        }
+
+
     }
 
     private void CopyFile(string sourceFile, string destFile)
