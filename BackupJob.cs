@@ -74,6 +74,10 @@ public class BackupJob
 
         _watcher.EnableRaisingEvents = true;
 
+        _watcher.IncludeSubdirectories = true;
+
+        _watcher.EnableRaisingEvents = true;
+
         _watcher.NotifyFilter = NotifyFilters.LastWrite
             | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.CreationTime;
 
@@ -168,9 +172,7 @@ public class BackupJob
     {
         string destPath = Path.Combine(TargetPath, fileEvent.Name);
 
-        FileAttributes attributes = File.GetAttributes(destPath);
-
-        if (attributes.HasFlag(FileAttributes.Directory)) {
+        if (Directory.Exists(fileEvent.FullPath)) {
             return;
         }
 
