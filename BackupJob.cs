@@ -252,14 +252,30 @@ public class BackupJob
     {
         if(_watcher != null)
         {
-            _watcher.EnableRaisingEvents = false;
-
             _watcher.Dispose();
 
             Logger.Write($"Stopped monitoring: {SourcePath} --> {TargetPath}");
         }
     }
 
-    
+    public void Pause()
+    {
+        if (_watcher != null)
+        {
+            _watcher.EnableRaisingEvents = false;
+        }
+    }
+    public void Resume()
+    {
+        if (_watcher != null)
+        {
+            _watcher.EnableRaisingEvents = true;
+        }
+    }
 
+
+    public void Restore()
+    {
+
+    }
 }

@@ -71,7 +71,6 @@ public class Program
                                 Logger.Write($"[{item.Id}] {item.Source} --> {item.Target}");
                             }
                         }
-                      
                         break;
                     case "end":
                         if (count<3)

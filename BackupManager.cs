@@ -102,6 +102,67 @@ public class BackupManager
             }
         }
     }
+
+    public void RestoreBackup(string source, string backupLoc) {
+        int jobIndex = _activeJobs.FindIndex(job=>
+            job.SourcePath.Equals(source, StringComparison.OrdinalIgnoreCase)&&
+            job.TargetPath.Equals(backupLoc, StringComparison.OrdinalIgnoreCase));
+
+        BackupJob job = null;
+
+        if (jobIndex != -1)
+        {
+            job = _activeJobs[jobIndex];
+            job.Pause();
+        }
+        else
+        {
+            Logger.Write($"Could not find backup: {source} --> {backupLoc}");
+        }
+        try
+        {
+            RestoreCopyDirectory(backupLoc, source);
+        }
+
+        
+
+    }
+
+
+    public void RestoreCopyDirectory(string backupDir, string originalDir)
+    {
+        Directory.CreateDirectory(originalDir);
+
+        var bDirInfo = new DirectoryInfo(backupDir);
+
+        foreach (FileInfo backupFile in bDirInfo.EnumerateFiles()) {
+            string targetFilePath = Path.Combine(originalDir, backupFile.Name);
+
+            FileInfo targetFile = new FileInfo(targetFilePath);
+
+            bool shouldCopy = true;
+
+            if (targetFile.Exists)
+            {
+                bool isSameSize = backupFile.Length == targetFile.Length;
+                bool isSameTime = backupFile.LastWriteTime == targetFile.LastWriteTime;
+
+                if (isSameSize && isSameTime) {
+                    shouldCopy = false;
+                }
+            }
+            if (shouldCopy) {
+                backupFile.CopyTo(targetFilePath, true);
+            }
+        }
+        foreach(DirectoryInfo subDir in bDirInfo.EnumerateDirectories())
+        {
+            string newTargetDir = Path.Combine(originalDir,subDir.Name);
+            RestoreCopyDirectory(subDir.FullName, newTargetDir);
+        }
+
+    }
+
 }
 
 
