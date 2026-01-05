@@ -54,12 +54,20 @@ public class Program
                         }
                         for(int i=2; i < arguments.Count; i++)
                         {
-                            manager.AddBackupJob(args[1], args[i]);
+                            manager.AddBackupJob(arguments[1], arguments[i]);
                         }
                         break;
                     case "list":
-                        foreach(var job in manager.)
-
+                        var list = manager.GetBackupInfo();
+                        if (list.Count == 0)
+                        {
+                            Console.WriteLine($"There are no current backups");
+                        }
+                        foreach(var item in list)
+                        {
+                            Console.WriteLine($"[{item.Id}] {item.Source} --> {item.Target}");
+                        }
+                        break;
                     default:
                         Console.WriteLine($"Unknown command: {command}");
                         PrintUsage();
