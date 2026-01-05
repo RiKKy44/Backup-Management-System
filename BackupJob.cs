@@ -119,7 +119,7 @@ public class BackupJob
         }
         catch(IOException exception)
         {
-            Console.WriteLine($" OnCreated error: {exception}");
+            Console.WriteLine($" OnCreated error: {exception.Message}");
         }
     }
     private void OnDeleted(object sender, FileSystemEventArgs fileEvent)
@@ -139,14 +139,32 @@ public class BackupJob
             }
         }
         catch (IOException exception) {
-            Console.WriteLine($"OnDeleted error: {exception}");
+            Console.WriteLine($"OnDeleted error: {exception.Message}");
         }
     }
-    private void OnRenamed(object sender, RenamedEventArgs e)
+    private void OnRenamed(object sender, RenamedEventArgs fileEvent)
     {
-        throw new NotImplementedException();
+        string oldPath = Path.Combine(TargetPath, fileEvent.OldName);
+
+        string newPath = Path.Combine(TargetPath, fileEvent.Name);
+
+        try
+        {
+            FileAttributes attribute = File.GetAttributes(oldPath);
+            if (attribute.HasFlag(FileAttributes.Directory)){
+                Directory.Move(oldPath, newPath);
+            }
+            else
+            {
+                File.Move(oldPath, newPath);
+            }
+        }
+        catch(IOException exception)
+        {
+            Console.WriteLine($"OnRenamed error: {exception.Message}");
+        }
     }
-    private void OnChanged(object sender, FileSystemEventArgs e)
+    private void OnChanged(object sender, FileSystemEventArgs fileEvent)
     {
         throw new NotImplementedException();
     }
