@@ -57,6 +57,8 @@ public class Program
                             manager.AddBackupJob(args[1], args[i]);
                         }
                         break;
+                    case "list":
+                        foreach(var job in manager.)
 
                     default:
                         Console.WriteLine($"Unknown command: {command}");
