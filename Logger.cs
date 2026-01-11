@@ -12,9 +12,9 @@ public static class Logger
     {
         lock (_lock)
         {
-            Console.Write("\r" + new string(' ', Console.WindowWidth - 1) + "\r");
+            Console.Write("\r");
             Console.WriteLine(message);
-            Console.Write(">");
+            Console.Write("> ");
         }
     }
 }

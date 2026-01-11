@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace BackupSystem;
@@ -105,8 +104,8 @@ public class BackupManager
 
     public void RestoreBackup(string source, string backupLoc) {
         int jobIndex = _activeJobs.FindIndex(job=>
-            job.SourcePath.Equals(source, StringComparison.OrdinalIgnoreCase)&&
-            job.TargetPath.Equals(backupLoc, StringComparison.OrdinalIgnoreCase));
+            job.SourcePath.Equals(backupLoc, StringComparison.OrdinalIgnoreCase)&&
+            job.TargetPath.Equals(source, StringComparison.OrdinalIgnoreCase));
 
         BackupJob job = null;
 
@@ -115,21 +114,24 @@ public class BackupManager
             job = _activeJobs[jobIndex];
             job.Pause();
         }
-        else
-        {
-            Logger.Write($"Could not find backup: {source} --> {backupLoc}");
-        }
         try
         {
             RestoreCopyDirectory(backupLoc, source);
         }
 
-        
-
+        catch (Exception ex) {
+            Logger.Write($"Restore failed: {backupLoc} --> {source}");
+        }
+        finally
+        {
+            if (job != null) {
+                job.Resume();
+            }
+        }
     }
 
 
-    public void RestoreCopyDirectory(string backupDir, string originalDir)
+    private void RestoreCopyDirectory(string backupDir, string originalDir)
     {
         Directory.CreateDirectory(originalDir);
 

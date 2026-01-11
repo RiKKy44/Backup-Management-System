@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection.Metadata.Ecma335;
 
 namespace BackupSystem;
 
@@ -49,7 +48,7 @@ public class Program
                         if(count < 3)
                         {
                             Logger.Write(Usage());
-                            continue;
+                            break;
                         }
                         for(int i=2; i < arguments.Count; i++)
                         {
@@ -72,6 +71,18 @@ public class Program
                             }
                         }
                         break;
+                    case "restore":
+                        if (count < 3)
+                        {
+                            Logger.Write($"Error: Missing arguments for restore function\n" +
+                                $"Usage: restore <backup_path> <restore_path>");
+                            break;
+                        }
+
+                        string source = arguments[1];
+                        string target = arguments[2];
+                        manager.RestoreBackup(target, source);
+                        break;
                     case "end":
                         if (count<3)
                         {
@@ -80,6 +91,7 @@ public class Program
                         }
                         manager.RemoveBackupJob(arguments[1], arguments[2]);
                         break;
+
                     default:
                         Logger.Write($"Unknown command: {command}\n{Usage()}");
                         break;
@@ -93,11 +105,11 @@ public class Program
     {
         string message = @"
 Usage:
-    add <source> <target> ...   Start backup monitoring
-    end <source> <target> ...   Stop specific backup
-    restore <source> <target>   Restore files from backup
-    list                        Show active backups
-    exit                        Quit the application
+add <source> <target> ...   Start backup monitoring
+end <source> <target> ...   Stop specific backup
+restore <source> <target>   Restore files from backup
+list                        Show active backups
+exit                        Quit the application
 ";
         return message;
     }

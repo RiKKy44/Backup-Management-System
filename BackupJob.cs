@@ -1,6 +1,4 @@
 using System;
-using System.Linq.Expressions;
-using System.Threading;
 namespace BackupSystem;
 
 
@@ -65,13 +63,8 @@ public class BackupJob
             Directory.CreateDirectory(TargetPath);
         }
         CopyDirectory(SourcePath, TargetPath);
+
         _watcher = new FileSystemWatcher(SourcePath);
-
-        _watcher.EnableRaisingEvents = true;
-
-        _watcher.IncludeSubdirectories = true;
-
-        _watcher.EnableRaisingEvents = true;
 
         _watcher.NotifyFilter = NotifyFilters.LastWrite
             | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.CreationTime;
@@ -84,17 +77,14 @@ public class BackupJob
 
         _watcher.Changed += OnChanged;
 
+        _watcher.IncludeSubdirectories = true;
+
         _watcher.EnableRaisingEvents = true;
-
-        Logger.Write($"Monitoring active for: {SourcePath}");
-
     }
 
 
     private void OnCreated(object sender, FileSystemEventArgs fileEvent)
     {
-        Logger.Write($"Creation reported: {fileEvent.Name}");
-
         string destPath = Path.Combine(TargetPath, fileEvent.Name);
 
         int attempts = 0;
@@ -214,12 +204,6 @@ public class BackupJob
             }
         }
 
-        if (!success)
-        {
-            Logger.Write($"Unable to update file after {attempts} attemps");
-        }
-
-
     }
 
     private void CopyFile(string sourceFile, string destFile)
@@ -271,11 +255,5 @@ public class BackupJob
         {
             _watcher.EnableRaisingEvents = true;
         }
-    }
-
-
-    public void Restore()
-    {
-
     }
 }
